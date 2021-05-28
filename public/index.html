@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>webpack搭建项目之@babel/plugin-transform-runtime插件的使用</title>
+</head>
+<body>
+  <h3>文档链接：https://zhuanlan.zhihu.com/p/147083132</h3>
+  <div id='root'>
+  </div>
+
+  <div>
+    @babel/preset-env 只能转换es6的const， let, 箭头函数，扩展运算符等，没法转化includes等函数及方法，如果在不支持 includes 这个方法的浏览器里运行，就会报错
+    并且async function 语法被 babel 转译之后的代码使用了 regeneratorRuntime 这个变量，打包出来的文件运行会报错
+
+    <p>
+
+      解决方案：@babel/polyfill（该库一共分为两部分，第一部分是 core-js，第二部分是 regenerator-runtime），并配置useBuiltIns属性
+
+      <b>但是会有另外的问题
+        默认情况下，babel 在每个需要使用 helper 的地方都会定义一个 helper，导致最终的产物里有大量重复的 helper；引入 polyfill 时会直接修改全局变量及其原型，造成原型污染。
+      </b>
+
+      class 语法中，babel 自定义了 _classCallCheck这个函数来辅助；typeof 则是直接重写了一遍，自定义了 _typeof 这个函数来辅助。
+      这些函数叫做 helpers。从上图中可以看到，helper 直接在转译后的文件里被定义了一遍。如果一个项目中有100个文件，
+      其中每个文件都写了一个 class，那么这个项目最终打包的产物里就会存在100个 _classCallCheck 函数，他们的长相和功能一模一样，这显然不合理。
+
+      <b>@babel/plugin-transform-runtime插件可以解决这个问题</b>
+    </p>
+  </div>
+</body>
+</html>
